@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -23,18 +24,44 @@ public class GameController : MonoBehaviour
     bool[,] map = new bool[10, 20];
     int blockCountInOneLine;
 
+    // Variables for play area and game difficulty
     int playAreaWidth = 10;
     int playAreaHeight = 20;
+    
+    int difficulty;
+    public Text hardModeText;
+    public Text modeText;
 
-    // Variable for next shape panel in the left
+    // Variables for next shape panel in the left
     public Transform nextShapeHolder;
     public GameObject[] nextShapes;
     GameObject nextShape;
     NextShape nextShapeToBeDestroyed;
-
+    
     private void Start()
     {
+        difficulty = AudioController.instance.difficulty;
+
+        switch (difficulty)
+        {
+            case 0:
+                modeText.text = "EASY";
+                break;
+            case 1:
+                modeText.text = "MEDIUM";
+                break;
+            case 2:
+                modeText.text = "HARD";
+                break;
+            default:
+                break;
+        }
+
         gameState = State.Playing;
+
+        string sceneName = SceneManager.GetActiveScene().name;
+        AudioController.instance.PlayTheme(sceneName);
+
         shapeToBeSpawned = shapes[Random.Range(0, shapes.Length)];
         SpawnNextBlock();
         blockCountInOneLine = 0;
@@ -48,7 +75,11 @@ public class GameController : MonoBehaviour
             Instantiate(shapeToBeSpawned, shapeToBeSpawned.transform.position, Quaternion.identity);
             int randomizer = Random.Range(0, shapes.Length);
             shapeToBeSpawned = shapes[randomizer];
-            InstantiateNextShape(randomizer);
+
+            if (difficulty < 2)
+                InstantiateNextShape(randomizer);
+            else
+                hardModeText.gameObject.SetActive(true);
         }
         else
         {
@@ -114,6 +145,8 @@ public class GameController : MonoBehaviour
 
     private void GameOver()
     {
+        AudioController.instance.StopTheme();
+        AudioController.instance.PlaySFX("Game Over");
         GameOverController gameOverController = gameOverUI.GetComponent<GameOverController>();
         gameOverController.Initiate();
         gameOverController.SetScoreText(score);

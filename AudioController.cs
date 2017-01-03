@@ -10,8 +10,13 @@ public class AudioController : MonoBehaviour
     public AudioClip[] theme;
     public AudioClip[] sfx;
 
+    string sceneName;
+
     AudioSource[] musicSources;
-    
+
+    // Difficulty variable is stored in this script because of static instance
+    public int difficulty;
+
     private void Awake()
     {
         if (instance != null)
@@ -29,12 +34,20 @@ public class AudioController : MonoBehaviour
                 newMusicSource.transform.parent = transform;
             }
 
-            PlayTheme("Main");
+            sceneName = SceneManager.GetActiveScene().name;
+            PlayTheme(sceneName);
         }
+    }
+
+    public void StopTheme()
+    {
+        FadeAway(2.0f);
     }
 
     public void PlayTheme(string name)
     {
+        FadeIn(1.0f);
+
         for (int i = 0; i < theme.Length; i++)
         {
             if (theme[i].name == name)
@@ -62,6 +75,29 @@ public class AudioController : MonoBehaviour
 
         if (musicSources[1].clip != null)
             musicSources[1].Play();
+        
+    }
+
+    IEnumerator Fade(float from, float to, float duration)
+    {
+        float percent = 0f;
+        
+        while (percent < 1)
+        {
+            percent += Time.deltaTime * (1 / duration);
+            musicSources[0].volume = Mathf.Lerp(from ,to , percent);
+            yield return null;
+        }
+    }
+
+    public void FadeAway(float duration)
+    {
+        StartCoroutine(Fade(1f, 0f, duration));
+    }
+
+    public void FadeIn(float duration)
+    {
+        StartCoroutine(Fade(0f, 1f, duration));
     }
 
 }

@@ -7,6 +7,7 @@ public class ShapeController : MonoBehaviour
     public Block[] blocks;
     
     GameController gameController;
+    MenuController menuController;
     
     Vector3 spawnPoint = new Vector3(-0.5f, 10.5f, 0f);
 
@@ -22,7 +23,10 @@ public class ShapeController : MonoBehaviour
     string shape;
     int rotateCount;
 
+    int difficulty;
     float downSpeed;
+    float easyDownSpeed = 2f;
+    float mediumHardDownSpeed = 4f;
 
     private void Start()
     {
@@ -34,7 +38,9 @@ public class ShapeController : MonoBehaviour
         transform.position = spawnPoint;
         touchesBlock = false;
 
-        downSpeed = 2f;
+        difficulty = AudioController.instance.difficulty;
+
+        SetDownSpeed(difficulty);
         StartCoroutine(MoveDownShapeOverTime(downSpeed));
     }
 
@@ -91,13 +97,13 @@ public class ShapeController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             {
                 StopAllCoroutines();
-                downSpeed = 10;
+                downSpeed = 10f;
                 StartCoroutine(MoveDownShapeOverTime(downSpeed));
             }
             else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
             {
                 StopAllCoroutines();
-                downSpeed = 2;
+                SetDownSpeed(difficulty);
                 StartCoroutine(MoveDownShapeOverTime(downSpeed));
             }
             /*===============================================================================*/
@@ -315,6 +321,24 @@ public class ShapeController : MonoBehaviour
                     blocks[3].transform.position += new Vector3(0f, -2f, 0f);
                     rotateCount--;
                 }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SetDownSpeed(int difficulty)
+    {
+        switch (difficulty)
+        {
+            case 0:
+                downSpeed = easyDownSpeed;
+                break;
+            case 1:
+                downSpeed = mediumHardDownSpeed;
+                break;
+            case 2:
+                downSpeed = mediumHardDownSpeed;
                 break;
             default:
                 break;

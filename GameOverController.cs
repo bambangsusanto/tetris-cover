@@ -68,8 +68,8 @@ public class GameOverController : MonoBehaviour {
         SceneManager.LoadScene("Game");        
     }
 
-    public void Quit()
+    public void BackToMainMenu()
     {
-        Application.Quit();
+        SceneManager.LoadScene("Menu");
     }
 }
